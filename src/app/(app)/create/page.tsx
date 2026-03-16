@@ -5,9 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export default function CreatePage() {
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold">Create QR Code</h1>
+      <h1 className="mb-6 text-xl font-semibold tracking-tight">Create QR Code</h1>
       <Tabs defaultValue="single">
-        <TabsList className="mb-4">
+        <TabsList className="mb-6">
           <TabsTrigger value="single">Single</TabsTrigger>
           <TabsTrigger value="bulk">Bulk (CSV)</TabsTrigger>
         </TabsList>

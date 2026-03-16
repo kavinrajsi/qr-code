@@ -62,10 +62,10 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Welcome back</CardTitle>
-        <CardDescription>Sign in to your account</CardDescription>
+    <Card className="w-full max-w-sm border-border/50">
+      <CardHeader className="text-center space-y-1">
+        <CardTitle className="text-xl font-semibold">Welcome back</CardTitle>
+        <CardDescription className="text-sm">Sign in to your account</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <Button

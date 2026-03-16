@@ -25,26 +25,27 @@ export function AnalyticsView({ qrCode, analytics }: AnalyticsViewProps) {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold">{qrCode.name}</h1>
-        <p className="text-muted-foreground">{qrCode.destination_url}</p>
-        <Badge variant="secondary" className="mt-1">
+        <h1 className="text-xl font-semibold tracking-tight">{qrCode.name}</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">{qrCode.destination_url}</p>
+        <Badge variant="secondary" className="mt-2 text-xs font-normal">
           /{qrCode.slug}
         </Badge>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <stat.icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-            </CardContent>
-          </Card>
+          <div
+            key={stat.title}
+            className="rounded-xl border border-border/50 bg-card p-5 transition-colors hover:border-border"
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-medium text-muted-foreground">{stat.title}</p>
+              <stat.icon className="h-3.5 w-3.5 text-muted-foreground/60" />
+            </div>
+            <p className="mt-2 text-2xl font-semibold tracking-tight">{stat.value}</p>
+          </div>
         ))}
       </div>
 
@@ -68,21 +69,19 @@ export function AnalyticsView({ qrCode, analytics }: AnalyticsViewProps) {
       </div>
 
       {analytics.top_countries.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Countries</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {analytics.top_countries.map((country) => (
-                <div key={country.country} className="flex items-center justify-between">
-                  <span>{country.country}</span>
-                  <Badge variant="outline">{country.count} scans</Badge>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <div className="rounded-xl border border-border/50 bg-card">
+          <div className="p-5 pb-0">
+            <h3 className="text-sm font-medium">Top Countries</h3>
+          </div>
+          <div className="p-5 space-y-3">
+            {analytics.top_countries.map((country) => (
+              <div key={country.country} className="flex items-center justify-between text-sm">
+                <span>{country.country}</span>
+                <span className="text-xs text-muted-foreground tabular-nums">{country.count} scans</span>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

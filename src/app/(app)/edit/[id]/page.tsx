@@ -17,7 +17,7 @@ export default async function EditPage({ params }: { params: Promise<{ id: strin
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold">Edit QR Code</h1>
+      <h1 className="mb-6 text-xl font-semibold tracking-tight">Edit QR Code</h1>
       <QRForm existingQR={data as QRCode} />
     </div>
   );

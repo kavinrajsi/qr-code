@@ -31,49 +31,50 @@ export function Navbar() {
   const initials = user?.email?.slice(0, 2).toUpperCase() || "??";
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl">
       <div className="container flex h-14 items-center justify-between">
-        <Link href="/dashboard" className="flex items-center gap-2 font-bold">
-          <QrCode className="h-5 w-5" />
+        <Link href="/dashboard" className="flex items-center gap-2 text-sm font-semibold tracking-tight">
+          <QrCode className="h-4 w-4" />
           QR Generator
         </Link>
 
-        <div className="flex items-center gap-2">
-          <Button size="sm" render={<Link href="/create" />}>
-            <Plus className="mr-1 h-4 w-4" />
-            Create QR
+        <div className="flex items-center gap-1.5">
+          <Button size="sm" variant="default" className="h-8 text-xs" render={<Link href="/create" />}>
+            <Plus className="mr-1 h-3.5 w-3.5" />
+            New QR
           </Button>
 
           <Button
             variant="ghost"
             size="icon"
+            className="h-8 w-8"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           >
             {theme === "dark" ? (
-              <Sun className="h-4 w-4" />
+              <Sun className="h-3.5 w-3.5" />
             ) : (
-              <Moon className="h-4 w-4" />
+              <Moon className="h-3.5 w-3.5" />
             )}
           </Button>
 
           <DropdownMenu>
-            <DropdownMenuTrigger className="rounded-full">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+            <DropdownMenuTrigger className="rounded-full outline-none">
+              <Avatar className="h-7 w-7">
+                <AvatarFallback className="text-[10px] font-medium">{initials}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <div className="px-2 py-1.5 text-sm text-muted-foreground">
+            <DropdownMenuContent align="end" className="w-48">
+              <div className="px-2 py-1.5 text-xs text-muted-foreground truncate">
                 {user?.email}
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => router.push("/dashboard")}>
-                <LayoutDashboard className="mr-2 h-4 w-4" />
+                <LayoutDashboard className="mr-2 h-3.5 w-3.5" />
                 Dashboard
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut}>
-                <LogOut className="mr-2 h-4 w-4" />
+                <LogOut className="mr-2 h-3.5 w-3.5" />
                 Sign out
               </DropdownMenuItem>
             </DropdownMenuContent>

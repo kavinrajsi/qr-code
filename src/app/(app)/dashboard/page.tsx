@@ -11,11 +11,16 @@ export default function DashboardPage() {
   const { qrCodes, allQRCodes, loading, search, setSearch, deleteQRCode } = useQRCodes();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <Button render={<Link href="/create" />}>
-          <Plus className="mr-1 h-4 w-4" />
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Manage and track your QR codes
+          </p>
+        </div>
+        <Button size="sm" render={<Link href="/create" />}>
+          <Plus className="mr-1 h-3.5 w-3.5" />
           Create QR Code
         </Button>
       </div>

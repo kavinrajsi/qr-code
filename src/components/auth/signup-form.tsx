@@ -59,10 +59,10 @@ export function SignupForm() {
   };
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Create an account</CardTitle>
-        <CardDescription>Get started with QR Code Generator</CardDescription>
+    <Card className="w-full max-w-sm border-border/50">
+      <CardHeader className="text-center space-y-1">
+        <CardTitle className="text-xl font-semibold">Create an account</CardTitle>
+        <CardDescription className="text-sm">Get started with QR Generator</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <Button

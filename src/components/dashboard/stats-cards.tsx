@@ -1,8 +1,7 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { QrCode, ScanLine, MousePointerClick, TrendingUp } from "lucide-react";
 import type { QRCodeWithScans } from "@/types";
+import { QrCode, ScanLine, MousePointerClick, TrendingUp } from "lucide-react";
 
 interface StatsCardsProps {
   qrCodes: QRCodeWithScans[];
@@ -17,22 +16,23 @@ export function StatsCards({ qrCodes }: StatsCardsProps) {
   const stats = [
     { title: "Total QR Codes", value: totalQRs, icon: QrCode },
     { title: "Total Scans", value: totalScans, icon: ScanLine },
-    { title: "Active QR Codes", value: activeQRs, icon: MousePointerClick },
-    { title: "Avg. Scans/QR", value: avgScans, icon: TrendingUp },
+    { title: "Active", value: activeQRs, icon: MousePointerClick },
+    { title: "Avg. Scans", value: avgScans, icon: TrendingUp },
   ];
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat) => (
-        <Card key={stat.title}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-            <stat.icon className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stat.value.toLocaleString()}</div>
-          </CardContent>
-        </Card>
+        <div
+          key={stat.title}
+          className="rounded-xl border border-border/50 bg-card p-5 transition-colors hover:border-border"
+        >
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-medium text-muted-foreground">{stat.title}</p>
+            <stat.icon className="h-3.5 w-3.5 text-muted-foreground/60" />
+          </div>
+          <p className="mt-2 text-2xl font-semibold tracking-tight">{stat.value.toLocaleString()}</p>
+        </div>
       ))}
     </div>
   );
