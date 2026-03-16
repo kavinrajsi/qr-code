@@ -46,7 +46,7 @@ export function QRPreview({ options, className }: QRPreviewProps) {
         className={`flex items-center justify-center rounded-lg border-2 border-dashed bg-muted/50 ${className}`}
         style={{ width: options.width || 300, height: options.height || 300 }}
       >
-        <p className="text-sm text-muted-foreground">Enter a URL to preview</p>
+        <p className="text-sm text-muted-foreground">Enter content to preview</p>
       </div>
     );
   }

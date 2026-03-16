@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateSlug } from "@/lib/slug";
 import { QR_DEFAULTS } from "@/lib/qr";
+import { buildDestinationUrl, FORCE_DYNAMIC_TYPES } from "@/lib/qr-content";
+import type { QRType } from "@/types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,8 +23,21 @@ export async function POST(request: NextRequest) {
     const errors = [];
 
     for (const item of items) {
-      if (!item.name || !item.destination_url) {
-        errors.push({ error: "Missing name or destination_url", input: item });
+      const qrType: QRType = item.qr_type || "url";
+
+      // For URL type, keep backward compatibility
+      const contentData = item.content_data || (qrType === "url" ? { url: item.destination_url } : null);
+
+      if (!item.name) {
+        errors.push({ error: "Missing name", input: item });
+        continue;
+      }
+
+      // Compute destination_url from content_data
+      const destinationUrl = item.destination_url || (contentData ? buildDestinationUrl(qrType, contentData) : "");
+
+      if (!destinationUrl && !["multi_url", "contact", "text", "app"].includes(qrType)) {
+        errors.push({ error: "Missing content data", input: item });
         continue;
       }
 
@@ -30,14 +45,16 @@ export async function POST(request: NextRequest) {
         user_id: user.id,
         name: item.name,
         slug: generateSlug(),
-        destination_url: item.destination_url,
+        qr_type: qrType,
+        destination_url: destinationUrl || "",
+        content_data: contentData,
         description: item.description || null,
         qr_color: item.qr_color || QR_DEFAULTS.qr_color,
         bg_color: item.bg_color || QR_DEFAULTS.bg_color,
         dot_style: item.dot_style || QR_DEFAULTS.dot_style,
         corner_style: item.corner_style || QR_DEFAULTS.corner_style,
         logo_size: item.logo_size || QR_DEFAULTS.logo_size,
-        is_dynamic: item.is_dynamic ?? QR_DEFAULTS.is_dynamic,
+        is_dynamic: FORCE_DYNAMIC_TYPES.includes(qrType) ? true : (item.is_dynamic ?? QR_DEFAULTS.is_dynamic),
         folder: item.folder || null,
       });
     }

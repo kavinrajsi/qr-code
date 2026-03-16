@@ -13,7 +13,9 @@ create table public.qr_codes (
   user_id uuid references auth.users(id) on delete cascade not null,
   name text not null,
   slug text unique not null,
+  qr_type text default 'url' not null,
   destination_url text not null,
+  content_data jsonb,
   description text,
   qr_color text default '#000000' not null,
   bg_color text default '#FFFFFF' not null,
@@ -123,6 +125,10 @@ insert into storage.buckets (id, name, public)
 values ('qr-logos', 'qr-logos', true)
 on conflict (id) do nothing;
 
+insert into storage.buckets (id, name, public)
+values ('qr-pdfs', 'qr-pdfs', true)
+on conflict (id) do nothing;
+
 -- Storage policies
 create policy "Users can upload logos"
   on storage.objects for insert
@@ -135,3 +141,16 @@ create policy "Anyone can view logos"
 create policy "Users can delete own logos"
   on storage.objects for delete
   using (bucket_id = 'qr-logos' and auth.uid()::text = (storage.foldername(name))[1]);
+
+-- PDF storage policies
+create policy "Users can upload PDFs"
+  on storage.objects for insert
+  with check (bucket_id = 'qr-pdfs' and auth.role() = 'authenticated');
+
+create policy "Anyone can view PDFs"
+  on storage.objects for select
+  using (bucket_id = 'qr-pdfs');
+
+create policy "Users can delete own PDFs"
+  on storage.objects for delete
+  using (bucket_id = 'qr-pdfs' and auth.uid()::text = (storage.foldername(name))[1]);

@@ -1,9 +1,13 @@
+export type QRType = "url" | "pdf" | "multi_url" | "contact" | "text" | "app" | "sms" | "email" | "phone";
+
 export interface QRCode {
   id: string;
   user_id: string;
   name: string;
   slug: string;
+  qr_type: QRType;
   destination_url: string;
+  content_data: QRContentData | null;
   description: string | null;
   qr_color: string;
   bg_color: string;
@@ -37,9 +41,71 @@ export interface QRScan {
 export type DotStyle = "square" | "dots" | "rounded" | "extra-rounded" | "classy" | "classy-rounded";
 export type CornerStyle = "square" | "dot" | "extra-rounded";
 
+// Content data shapes per QR type
+export interface URLContentData {
+  url: string;
+}
+
+export interface PDFContentData {
+  file_url: string;
+}
+
+export interface MultiURLContentData {
+  urls: { title: string; url: string }[];
+}
+
+export interface ContactContentData {
+  first_name: string;
+  last_name: string;
+  phone?: string;
+  email?: string;
+  company?: string;
+  job_title?: string;
+  address?: string;
+  website?: string;
+}
+
+export interface TextContentData {
+  text: string;
+}
+
+export interface AppContentData {
+  ios_url?: string;
+  android_url?: string;
+  fallback_url?: string;
+}
+
+export interface SMSContentData {
+  phone: string;
+  message?: string;
+}
+
+export interface EmailContentData {
+  address: string;
+  subject?: string;
+  body?: string;
+}
+
+export interface PhoneContentData {
+  phone: string;
+}
+
+export type QRContentData =
+  | URLContentData
+  | PDFContentData
+  | MultiURLContentData
+  | ContactContentData
+  | TextContentData
+  | AppContentData
+  | SMSContentData
+  | EmailContentData
+  | PhoneContentData;
+
 export interface QRCodeFormData {
   name: string;
+  qr_type: QRType;
   destination_url: string;
+  content_data: QRContentData;
   description: string;
   qr_color: string;
   bg_color: string;
@@ -47,6 +113,7 @@ export interface QRCodeFormData {
   corner_style: CornerStyle;
   logo_size: number;
   logo_file: File | null;
+  pdf_file: File | null;
   is_dynamic: boolean;
   password: string;
   expires_at: string;

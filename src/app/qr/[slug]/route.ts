@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { logScan } from "@/lib/scan-logger";
+import { LANDING_PAGE_TYPES } from "@/lib/qr-content";
+import type { QRType } from "@/types";
+
+const ALLOWED_PROTOCOLS = ["http:", "https:", "tel:", "sms:", "mailto:"];
 
 export async function GET(
   request: NextRequest,
@@ -11,7 +15,7 @@ export async function GET(
 
   const { data: qrCode } = await supabase
     .from("qr_codes")
-    .select("id, destination_url, password, expires_at, is_active")
+    .select("id, qr_type, destination_url, content_data, password, expires_at, is_active")
     .eq("slug", slug)
     .eq("is_active", true)
     .single();
@@ -30,18 +34,34 @@ export async function GET(
     );
   }
 
-  // Validate destination URL scheme
+  // Log scan (fire-and-forget)
+  void logScan(qrCode.id, request.headers);
+
+  const qrType: QRType = qrCode.qr_type || "url";
+
+  // Types that need a landing page
+  if (LANDING_PAGE_TYPES.includes(qrType)) {
+    return NextResponse.redirect(new URL(`/p/${slug}`, request.url));
+  }
+
+  // For URL, PDF, phone, sms, email - redirect to destination_url
+  const dest = qrCode.destination_url;
+
+  // Validate destination scheme
   try {
-    const dest = new URL(qrCode.destination_url);
-    if (!["http:", "https:"].includes(dest.protocol)) {
+    // tel:, sms:, mailto: are valid URI schemes but not full URLs
+    // Only validate http/https as URLs
+    if (dest.startsWith("http://") || dest.startsWith("https://")) {
+      const url = new URL(dest);
+      if (!ALLOWED_PROTOCOLS.includes(url.protocol)) {
+        return new NextResponse("Invalid destination", { status: 400 });
+      }
+    } else if (!ALLOWED_PROTOCOLS.some((p) => dest.startsWith(p.replace(":", "")))) {
       return new NextResponse("Invalid destination", { status: 400 });
     }
   } catch {
     return new NextResponse("Invalid destination URL", { status: 400 });
   }
 
-  // Log scan directly (fire-and-forget, no self HTTP call)
-  void logScan(qrCode.id, request.headers);
-
-  return NextResponse.redirect(qrCode.destination_url);
+  return NextResponse.redirect(dest);
 }
