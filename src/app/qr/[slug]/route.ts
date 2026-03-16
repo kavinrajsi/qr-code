@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { logScan } from "@/lib/scan-logger";
-import { LANDING_PAGE_TYPES } from "@/lib/qr-content";
-import type { QRType } from "@/types";
+import { LANDING_PAGE_TYPES, buildVCard } from "@/lib/qr-content";
+import type { QRType, ContactContentData } from "@/types";
 
 const ALLOWED_PROTOCOLS = ["http:", "https:", "tel:", "sms:", "mailto:"];
 
@@ -42,6 +42,20 @@ export async function GET(
   // Types that need a landing page
   if (LANDING_PAGE_TYPES.includes(qrType)) {
     return NextResponse.redirect(new URL(`/p/${slug}`, request.url));
+  }
+
+  // Contact type: serve vCard file directly so phones auto-prompt "Add Contact"
+  if (qrType === "contact" && qrCode.content_data) {
+    const vcf = buildVCard(qrCode.content_data as ContactContentData);
+    const contact = qrCode.content_data as ContactContentData;
+    const filename = `${contact.first_name}_${contact.last_name}.vcf`.replace(/\s+/g, "_");
+
+    return new NextResponse(vcf, {
+      headers: {
+        "Content-Type": "text/vcard; charset=utf-8",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+      },
+    });
   }
 
   // For URL, PDF, phone, sms, email - redirect to destination_url

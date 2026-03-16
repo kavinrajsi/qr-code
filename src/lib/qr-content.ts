@@ -94,12 +94,12 @@ export function buildDestinationUrl(type: QRType, data: QRContentData): string {
 }
 
 /** Types that require a landing page for dynamic QR codes */
-export const LANDING_PAGE_TYPES: QRType[] = ["multi_url", "contact", "app", "text"];
+export const LANDING_PAGE_TYPES: QRType[] = ["multi_url", "app", "text"];
 
 /** Types that must always be dynamic (need server-side routing) */
 export const FORCE_DYNAMIC_TYPES: QRType[] = ["multi_url", "app"];
 
-function buildVCard(c: ContactContentData): string {
+export function buildVCard(c: ContactContentData): string {
   const lines = [
     "BEGIN:VCARD",
     "VERSION:3.0",
