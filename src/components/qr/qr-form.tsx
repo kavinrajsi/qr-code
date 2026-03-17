@@ -416,50 +416,82 @@ export function QRForm({ existingQR }: QRFormProps) {
   return (
     <div className="space-y-6">
       {/* Stepper Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-6">
-          {STEPS.map((s) => (
-            <button
-              key={s.number}
-              type="button"
-              onClick={() => {
-                if (s.number < step) setStep(s.number);
-                if (s.number === step + 1 && step === 1) setStep(s.number);
-              }}
-              className={`flex items-center gap-2 text-sm font-medium transition-colors ${
-                s.number === step
-                  ? "text-brand"
-                  : s.number < step
-                  ? "text-foreground"
-                  : "text-muted-foreground"
-              }`}
-            >
-              <span
-                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
+      <div className="space-y-4">
+        {/* Steps */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 sm:gap-6">
+            {STEPS.map((s) => (
+              <button
+                key={s.number}
+                type="button"
+                onClick={() => {
+                  if (s.number < step) setStep(s.number);
+                  if (s.number === step + 1 && step === 1) setStep(s.number);
+                }}
+                className={`flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium transition-colors ${
                   s.number === step
-                    ? "bg-brand text-white"
+                    ? "text-brand"
                     : s.number < step
-                    ? "bg-brand/20 text-brand"
-                    : "bg-muted text-muted-foreground"
+                    ? "text-foreground"
+                    : "text-muted-foreground"
                 }`}
               >
-                {s.number < step ? <Check className="h-3.5 w-3.5" /> : s.number}
-              </span>
-              <span className="hidden sm:inline">{s.label}</span>
-            </button>
-          ))}
+                <span
+                  className={`flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full text-[10px] sm:text-xs font-semibold transition-colors shrink-0 ${
+                    s.number === step
+                      ? "bg-brand text-white"
+                      : s.number < step
+                      ? "bg-brand/20 text-brand"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {s.number < step ? <Check className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> : s.number}
+                </span>
+                <span className="hidden sm:inline">{s.label}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Navigation - desktop */}
+          <div className="hidden sm:flex items-center gap-2">
+            {step > 1 && (
+              <Button variant="outline" onClick={() => setStep((s) => s - 1)}>
+                <ArrowLeft className="mr-1.5 h-4 w-4" />
+                Back
+              </Button>
+            )}
+            {step < 3 ? (
+              <Button
+                className="bg-brand hover:bg-brand/90 text-brand-foreground"
+                onClick={handleContinue}
+              >
+                Continue
+                <ArrowRight className="ml-1.5 h-4 w-4" />
+              </Button>
+            ) : (
+              <Button
+                className="bg-brand hover:bg-brand/90 text-brand-foreground"
+                onClick={handleSave}
+                disabled={saving}
+              >
+                {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {existingQR ? "Update QR Code" : "Save QR Code"}
+              </Button>
+            )}
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* Navigation - mobile (full width) */}
+        <div className="flex sm:hidden gap-2">
           {step > 1 && (
-            <Button variant="outline" onClick={() => setStep((s) => s - 1)}>
+            <Button variant="outline" className="flex-1" onClick={() => setStep((s) => s - 1)}>
               <ArrowLeft className="mr-1.5 h-4 w-4" />
               Back
             </Button>
           )}
           {step < 3 ? (
             <Button
-              className="bg-brand hover:bg-brand/90 text-brand-foreground"
+              className="flex-1 bg-brand hover:bg-brand/90 text-brand-foreground"
               onClick={handleContinue}
             >
               Continue
@@ -467,7 +499,7 @@ export function QRForm({ existingQR }: QRFormProps) {
             </Button>
           ) : (
             <Button
-              className="bg-brand hover:bg-brand/90 text-brand-foreground"
+              className="flex-1 bg-brand hover:bg-brand/90 text-brand-foreground"
               onClick={handleSave}
               disabled={saving}
             >
@@ -479,12 +511,12 @@ export function QRForm({ existingQR }: QRFormProps) {
       </div>
 
       {/* Content */}
-      <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
+      <div className="grid gap-6 lg:gap-8 lg:grid-cols-[1fr_340px]">
         {/* Left: Step Content */}
         <div>
           {/* Step 1: Choose Type */}
           {step === 1 && (
-            <div className="rounded-xl border border-border/50 bg-card p-6 lg:p-8">
+            <div className="rounded-xl border border-border/50 bg-card p-4 sm:p-6 lg:p-8">
               <h2 className="mb-6 text-xl font-semibold">Choose your QR Code type</h2>
               <div className="grid gap-3 sm:grid-cols-2">
                 {QR_TYPES.map((t) => (
@@ -521,8 +553,8 @@ export function QRForm({ existingQR }: QRFormProps) {
           {/* Step 2: Additional Information */}
           {step === 2 && (
             <div className="space-y-6">
-              <div className="rounded-xl border border-border/50 bg-card p-6 lg:p-8">
-                <h2 className="mb-6 text-xl font-semibold">Additional Information</h2>
+              <div className="rounded-xl border border-border/50 bg-card p-4 sm:p-6 lg:p-8">
+                <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl font-semibold">Additional Information</h2>
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">QR Code Name *</Label>
@@ -570,8 +602,8 @@ export function QRForm({ existingQR }: QRFormProps) {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-border/50 bg-card p-6 lg:p-8">
-                <h2 className="mb-6 text-lg font-semibold">Advanced Settings</h2>
+              <div className="rounded-xl border border-border/50 bg-card p-4 sm:p-6 lg:p-8">
+                <h2 className="mb-4 sm:mb-6 text-lg font-semibold">Advanced Settings</h2>
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="password">Password Protection (optional)</Label>
@@ -603,8 +635,8 @@ export function QRForm({ existingQR }: QRFormProps) {
 
           {/* Step 3: QR Design */}
           {step === 3 && (
-            <div className="rounded-xl border border-border/50 bg-card p-6 lg:p-8">
-              <h2 className="mb-6 text-xl font-semibold">Customize QR Design</h2>
+            <div className="rounded-xl border border-border/50 bg-card p-4 sm:p-6 lg:p-8">
+              <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl font-semibold">Customize QR Design</h2>
               <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
                   <ColorPicker
@@ -774,13 +806,13 @@ export function QRForm({ existingQR }: QRFormProps) {
         </div>
 
         {/* Right: Preview */}
-        <div>
-          <div className="sticky top-20 rounded-xl border border-border/50 bg-card overflow-hidden">
+        <div className="order-first lg:order-last">
+          <div className="lg:sticky lg:top-20 rounded-xl border border-border/50 bg-card overflow-hidden">
             <div className="bg-brand px-5 py-3 text-center">
-              <p className="text-sm font-medium text-brand-foreground">Preview Page</p>
+              <p className="text-sm font-medium text-brand-foreground">Preview</p>
             </div>
-            <div className="p-5 space-y-4">
-              <div className="flex justify-center">
+            <div className="p-4 sm:p-5 space-y-4">
+              <div className="flex justify-center [&_canvas]:max-w-full [&_canvas]:h-auto">
                 <QRPreview options={qrOptions} />
               </div>
 
