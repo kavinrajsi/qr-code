@@ -7,7 +7,6 @@ import {
   Plus,
   QrCode,
   CheckCircle,
-  Archive,
   BarChart3,
   Settings,
   User,
@@ -23,7 +22,6 @@ const navItems = [
     icon: QrCode,
     children: [
       { label: "Active", href: "/dashboard", icon: CheckCircle },
-      { label: "Archived", href: "/dashboard?filter=archived", icon: Archive },
       { label: "Stats", href: "/dashboard?view=stats", icon: BarChart3 },
     ],
   },
@@ -35,8 +33,8 @@ const navItems = [
 ];
 
 const bottomItems = [
-  { label: "Account", href: "/dashboard", icon: User },
-  { label: "Settings", href: "/dashboard", icon: Settings },
+  { label: "Account", href: "/account", icon: User },
+  { label: "Settings", href: "/settings", icon: Settings },
 ];
 
 export function Sidebar() {
@@ -91,16 +89,23 @@ export function Sidebar() {
 
         {/* Bottom Section */}
         <div className="border-t border-border/50 pt-4 space-y-0.5">
-          {bottomItems.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            >
-              <item.icon className="h-4 w-4" />
-              {item.label}
-            </Link>
-          ))}
+          {bottomItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                className={`flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors ${
+                  isActive
+                    ? "bg-brand/10 text-brand font-medium"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </Link>
+            );
+          })}
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
