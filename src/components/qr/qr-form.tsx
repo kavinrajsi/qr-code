@@ -7,7 +7,7 @@ import { generateSlug } from "@/lib/slug";
 import { QR_DEFAULTS } from "@/lib/qr";
 import { encodeQRContent, FORCE_DYNAMIC_TYPES } from "@/lib/qr-content";
 import { buildDestinationUrl } from "@/lib/qr-content";
-import type { QRCode, QRCodeFormData, QRType, QRContentData, DotStyle, CornerStyle } from "@/types";
+import type { QRCode, QRCodeFormData, QRType, QRContentData, DotStyle, CornerStyle, FrameStyle, FrameFont } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -71,6 +71,24 @@ const CORNER_STYLES: { value: CornerStyle; label: string }[] = [
   { value: "extra-rounded", label: "Rounded" },
 ];
 
+const FRAME_STYLES: { value: FrameStyle; label: string }[] = [
+  { value: "none", label: "No Frame" },
+  { value: "bottom", label: "Bottom" },
+  { value: "top", label: "Top" },
+  { value: "balloon-bottom", label: "Balloon Bottom" },
+  { value: "balloon-top", label: "Balloon Top" },
+  { value: "ribbon-bottom", label: "Ribbon Bottom" },
+  { value: "ribbon-top", label: "Ribbon Top" },
+  { value: "phone", label: "Phone" },
+  { value: "cine", label: "Film Strip" },
+];
+
+const FRAME_FONTS: { value: FrameFont; label: string }[] = [
+  { value: "Arial, Helvetica, sans-serif", label: "Arial" },
+  { value: "'Times New Roman', Times, serif", label: "Times New Roman" },
+  { value: "'Courier New', Courier, monospace", label: "Courier New" },
+];
+
 const STEPS = [
   { number: 1, label: "Choose Type" },
   { number: 2, label: "Additional Information" },
@@ -115,6 +133,10 @@ export function QRForm({ existingQR }: QRFormProps) {
     logo_size: existingQR?.logo_size || QR_DEFAULTS.logo_size,
     logo_file: null,
     pdf_file: null,
+    outer_frame: existingQR?.outer_frame || QR_DEFAULTS.outer_frame,
+    frame_label: existingQR?.frame_label || QR_DEFAULTS.frame_label,
+    label_font: existingQR?.label_font || QR_DEFAULTS.label_font,
+    frame_color: existingQR?.frame_color || QR_DEFAULTS.frame_color,
     is_dynamic: existingQR?.is_dynamic ?? QR_DEFAULTS.is_dynamic,
     password: existingQR?.password || "",
     expires_at: existingQR?.expires_at
@@ -165,8 +187,12 @@ export function QRForm({ existingQR }: QRFormProps) {
       cornerStyle: form.corner_style,
       logoUrl: logoPreview || undefined,
       logoSize: form.logo_size,
+      outerFrame: form.outer_frame,
+      frameLabel: form.frame_label,
+      labelFont: form.label_font,
+      frameColor: form.frame_color,
     }),
-    [previewContent, form.qr_type, form.content_data, form.qr_color, form.bg_color, form.dot_style, form.corner_style, form.logo_size, logoPreview]
+    [previewContent, form.qr_type, form.content_data, form.qr_color, form.bg_color, form.dot_style, form.corner_style, form.logo_size, logoPreview, form.outer_frame, form.frame_label, form.label_font, form.frame_color]
   );
 
   const blobUrlRef = useRef<string | null>(null);
@@ -311,6 +337,10 @@ export function QRForm({ existingQR }: QRFormProps) {
         password: form.password || null,
         expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
         folder: form.folder || null,
+        outer_frame: form.outer_frame,
+        frame_label: form.frame_label,
+        label_font: form.label_font,
+        frame_color: form.frame_color,
       };
 
       if (existingQR) {
@@ -632,6 +662,70 @@ export function QRForm({ existingQR }: QRFormProps) {
                     />
                   </div>
                 )}
+
+                <Separator />
+
+                {/* Frame */}
+                <div className="space-y-4">
+                  <Label className="text-base font-semibold">Frame</Label>
+                  <div className="space-y-2">
+                    <Label>Frame Style</Label>
+                    <Select
+                      value={form.outer_frame}
+                      onValueChange={(v) => update("outer_frame", v)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FRAME_STYLES.map((s) => (
+                          <SelectItem key={s.value} value={s.value}>
+                            {s.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {form.outer_frame !== "none" && (
+                    <>
+                      <div className="space-y-2">
+                        <Label>Frame Label</Label>
+                        <Input
+                          value={form.frame_label}
+                          onChange={(e) => update("frame_label", e.target.value)}
+                          placeholder="SCAN ME"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Label Font</Label>
+                          <Select
+                            value={form.label_font}
+                            onValueChange={(v) => update("label_font", v)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {FRAME_FONTS.map((f) => (
+                                <SelectItem key={f.value} value={f.value}>
+                                  <span style={{ fontFamily: f.value }}>{f.label}</span>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <ColorPicker
+                          label="Frame Color"
+                          value={form.frame_color}
+                          onChange={(v) => update("frame_color", v)}
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           )}
