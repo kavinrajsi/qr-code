@@ -22,10 +22,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${ibmPlexSans.variable} antialiased`}
-      >
+    <html lang="en" suppressHydrationWarning className={ibmPlexSans.variable}>
+      <body className="antialiased">
         <ThemeProvider>
           <TooltipProvider>
             {children}

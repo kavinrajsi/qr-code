@@ -8,38 +8,28 @@ import {
   QrCode,
   CheckCircle,
   BarChart3,
-  Settings,
   User,
   FolderOpen,
+  Folder,
   Moon,
   Sun,
 } from "lucide-react";
 import { useTheme } from "@/components/shared/theme-provider";
+import { useFolders } from "@/hooks/use-folders";
 
-const navItems = [
-  {
-    label: "QR Codes",
-    icon: QrCode,
-    children: [
-      { label: "Active", href: "/dashboard", icon: CheckCircle },
-      { label: "Stats", href: "/dashboard?view=stats", icon: BarChart3 },
-    ],
-  },
-  {
-    label: "Folders",
-    icon: FolderOpen,
-    children: [],
-  },
+const qrItems = [
+  { label: "Active", href: "/dashboard", icon: CheckCircle },
+  { label: "Stats", href: "/dashboard?view=stats", icon: BarChart3 },
 ];
 
 const bottomItems = [
   { label: "Account", href: "/account", icon: User },
-  { label: "Settings", href: "/settings", icon: Settings },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
+  const { folders } = useFolders();
 
   return (
     <aside className="fixed left-0 top-14 z-40 hidden h-[calc(100vh-3.5rem)] w-60 flex-col border-r border-border/50 bg-card lg:flex">
@@ -56,35 +46,72 @@ export function Sidebar() {
 
         {/* Nav Sections */}
         <nav className="mt-8 flex-1 space-y-6">
-          {navItems.map((section) => (
-            <div key={section.label}>
-              <div className="flex items-center gap-2 px-2 text-sm font-semibold text-foreground">
-                <section.icon className="h-4 w-4" />
-                {section.label}
-              </div>
-              {section.children.length > 0 && (
-                <div className="mt-2 space-y-0.5">
-                  {section.children.map((item) => {
-                    const isActive = pathname === item.href && !item.href.includes("?");
-                    return (
-                      <Link
-                        key={item.label}
-                        href={item.href}
-                        className={`flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors ${
-                          isActive
-                            ? "bg-brand/10 text-brand font-medium"
-                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                        }`}
-                      >
-                        <item.icon className="h-4 w-4" />
-                        {item.label}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
+          {/* QR Codes */}
+          <div>
+            <div className="flex items-center gap-2 px-2 text-sm font-semibold text-foreground">
+              <QrCode className="h-4 w-4" />
+              QR Codes
             </div>
-          ))}
+            <div className="mt-2 space-y-0.5">
+              {qrItems.map((item) => {
+                const isActive =
+                  pathname === item.href && !item.href.includes("?");
+                return (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className={`flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors ${
+                      isActive
+                        ? "bg-brand/10 text-brand font-medium"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }`}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Folders */}
+          <div>
+            <div className="flex items-center gap-2 px-2 text-sm font-semibold text-foreground">
+              <FolderOpen className="h-4 w-4" />
+              Folders
+            </div>
+            {folders.length > 0 ? (
+              <div className="mt-2 space-y-0.5">
+                {folders.map((folder) => {
+                  const href = `/folders/${encodeURIComponent(folder.name)}`;
+                  const isActive = pathname === href;
+                  return (
+                    <Link
+                      key={folder.name}
+                      href={href}
+                      className={`flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors ${
+                        isActive
+                          ? "bg-brand/10 text-brand font-medium"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2.5 truncate">
+                        <Folder className="h-4 w-4 shrink-0" />
+                        <span className="truncate">{folder.name}</span>
+                      </span>
+                      <span className="ml-2 text-xs tabular-nums opacity-60">
+                        {folder.count}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="mt-2 px-3 text-xs text-muted-foreground/60">
+                Assign folders when creating QR codes
+              </p>
+            )}
+          </div>
         </nav>
 
         {/* Bottom Section */}

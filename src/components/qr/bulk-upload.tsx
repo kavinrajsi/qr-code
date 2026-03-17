@@ -6,7 +6,7 @@ import Papa from "papaparse";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Upload, Loader2, FileSpreadsheet } from "lucide-react";
+import { Upload, Loader2, FileSpreadsheet, Download } from "lucide-react";
 
 export function BulkUpload() {
   const [uploading, setUploading] = useState(false);
@@ -75,7 +75,15 @@ export function BulkUpload() {
           Bulk Generate
         </CardTitle>
         <CardDescription>
-          Upload a CSV with &quot;name&quot; and &quot;destination_url&quot; columns
+          Upload a CSV with &quot;name&quot; and &quot;destination_url&quot; columns.{" "}
+          <a
+            href="/sample-bulk-qr.csv"
+            download
+            className="inline-flex items-center gap-1 text-primary underline underline-offset-4 hover:text-primary/80"
+          >
+            <Download className="h-3 w-3" />
+            Download sample CSV
+          </a>
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

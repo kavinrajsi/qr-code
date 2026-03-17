@@ -20,6 +20,7 @@ import { QRPreview } from "./qr-preview";
 import { DownloadPanel } from "./download-panel";
 import { ColorPicker } from "./color-picker";
 import { TypeFields } from "./type-fields";
+import { FolderPicker } from "./folder-picker";
 import { toast } from "sonner";
 import {
   Loader2,
@@ -519,15 +520,10 @@ export function QRForm({ existingQR }: QRFormProps) {
                       onChange={(e) => update("expires_at", e.target.value)}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="folder">Folder (optional)</Label>
-                    <Input
-                      id="folder"
-                      placeholder="e.g. Marketing"
-                      value={form.folder}
-                      onChange={(e) => update("folder", e.target.value)}
-                    />
-                  </div>
+                  <FolderPicker
+                    value={form.folder}
+                    onChange={(v) => update("folder", v)}
+                  />
                 </div>
               </div>
             </div>

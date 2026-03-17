@@ -27,7 +27,6 @@ import {
   BarChart3,
   Copy,
   Edit,
-  ExternalLink,
   MoreHorizontal,
   Search,
   Share2,
@@ -121,15 +120,9 @@ export function QRTable({
                     </span>
                   </TableCell>
                   <TableCell className="hidden md:table-cell max-w-[200px]">
-                    <a
-                      href={qr.destination_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground truncate"
-                    >
+                    <span className="text-xs text-muted-foreground truncate block">
                       {qr.destination_url}
-                      <ExternalLink className="h-2.5 w-2.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </a>
+                    </span>
                   </TableCell>
                   <TableCell className="text-center">
                     <span className="text-xs font-medium tabular-nums">{qr.scan_count}</span>
