@@ -7,7 +7,7 @@ import { generateSlug } from "@/lib/slug";
 import { QR_DEFAULTS } from "@/lib/qr";
 import { encodeQRContent, FORCE_DYNAMIC_TYPES } from "@/lib/qr-content";
 import { buildDestinationUrl } from "@/lib/qr-content";
-import type { QRCode, QRCodeFormData, QRType, QRContentData, DotStyle, CornerStyle, FrameStyle, FrameFont } from "@/types";
+import type { QRCode, QRCodeFormData, QRType, QRContentData, ContactContentData, DotStyle, CornerStyle, FrameStyle, FrameFont } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -149,6 +149,11 @@ export function QRForm({ existingQR }: QRFormProps) {
     existingQR?.logo_url || null
   );
   const [pdfFileName, setPdfFileName] = useState<string | null>(null);
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(
+    (existingQR?.content_data as ContactContentData | undefined)?.profile_image || null
+  );
+  const profileBlobRef = useRef<string | null>(null);
 
   const update = (key: keyof QRCodeFormData, value: unknown) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -200,6 +205,7 @@ export function QRForm({ existingQR }: QRFormProps) {
   useEffect(() => {
     return () => {
       if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+      if (profileBlobRef.current) URL.revokeObjectURL(profileBlobRef.current);
     };
   }, []);
 
@@ -225,6 +231,22 @@ export function QRForm({ existingQR }: QRFormProps) {
   const handlePdfFile = (file: File | null) => {
     update("pdf_file", file);
     setPdfFileName(file?.name || null);
+  };
+
+  const handleProfileImage = (file: File | null) => {
+    if (profileBlobRef.current) {
+      URL.revokeObjectURL(profileBlobRef.current);
+      profileBlobRef.current = null;
+    }
+    if (file) {
+      const url = URL.createObjectURL(file);
+      profileBlobRef.current = url;
+      setProfileImageFile(file);
+      setProfileImagePreview(url);
+    } else {
+      setProfileImageFile(null);
+      setProfileImagePreview(null);
+    }
   };
 
   const validateStep2 = (): string | null => {
@@ -316,6 +338,24 @@ export function QRForm({ existingQR }: QRFormProps) {
           .from("qr-pdfs")
           .getPublicUrl(path);
         contentData = { file_url: urlData.publicUrl };
+      }
+
+      // Upload profile image for contact type
+      if (form.qr_type === "contact" && profileImageFile) {
+        const ext = profileImageFile.name.split(".").pop();
+        const path = `${user.id}/${Date.now()}-profile.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from("qr-logos")
+          .upload(path, profileImageFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from("qr-logos")
+          .getPublicUrl(path);
+        contentData = { ...contentData, profile_image: urlData.publicUrl };
+      } else if (form.qr_type === "contact" && profileImagePreview) {
+        contentData = { ...contentData, profile_image: profileImagePreview };
       }
 
       const destinationUrl = buildDestinationUrl(form.qr_type, contentData);
@@ -500,6 +540,8 @@ export function QRForm({ existingQR }: QRFormProps) {
                     onChange={(d) => update("content_data", d)}
                     onPdfFile={handlePdfFile}
                     pdfFileName={pdfFileName || undefined}
+                    onProfileImage={handleProfileImage}
+                    profileImagePreview={profileImagePreview}
                   />
 
                   <div className="space-y-2">

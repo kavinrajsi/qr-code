@@ -23,9 +23,11 @@ interface TypeFieldsProps {
   onChange: (data: QRContentData) => void;
   onPdfFile?: (file: File | null) => void;
   pdfFileName?: string;
+  onProfileImage?: (file: File | null) => void;
+  profileImagePreview?: string | null;
 }
 
-export function TypeFields({ type, data, onChange, onPdfFile, pdfFileName }: TypeFieldsProps) {
+export function TypeFields({ type, data, onChange, onPdfFile, pdfFileName, onProfileImage, profileImagePreview }: TypeFieldsProps) {
   switch (type) {
     case "url":
       return <URLFields data={data as { url: string }} onChange={onChange} />;
@@ -34,7 +36,7 @@ export function TypeFields({ type, data, onChange, onPdfFile, pdfFileName }: Typ
     case "multi_url":
       return <MultiURLFields data={data as MultiURLContentData} onChange={onChange} />;
     case "contact":
-      return <ContactFields data={data as ContactContentData} onChange={onChange} />;
+      return <ContactFields data={data as ContactContentData} onChange={onChange} onProfileImage={onProfileImage} profileImagePreview={profileImagePreview} />;
     case "text":
       return <TextField data={data as TextContentData} onChange={onChange} />;
     case "app":
@@ -142,13 +144,45 @@ function MultiURLFields({ data, onChange }: { data: MultiURLContentData; onChang
   );
 }
 
-function ContactFields({ data, onChange }: { data: ContactContentData; onChange: (d: QRContentData) => void }) {
+function ContactFields({ data, onChange, onProfileImage, profileImagePreview }: { data: ContactContentData; onChange: (d: QRContentData) => void; onProfileImage?: (file: File | null) => void; profileImagePreview?: string | null }) {
   const update = (field: keyof ContactContentData, value: string) => {
     onChange({ ...data, [field]: value });
   };
 
   return (
     <div className="space-y-3">
+      {/* Profile Image */}
+      <div className="space-y-2">
+        <Label>Profile Image</Label>
+        {profileImagePreview ? (
+          <div className="flex items-center gap-3">
+            <img
+              src={profileImagePreview}
+              alt="Profile"
+              className="h-16 w-16 rounded-full border object-cover"
+            />
+            <Button variant="ghost" size="sm" onClick={() => onProfileImage?.(null)}>
+              <Trash2 className="mr-1 h-4 w-4" />
+              Remove
+            </Button>
+          </div>
+        ) : (
+          <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed px-4 py-3 text-sm text-muted-foreground hover:bg-muted/50 transition-colors">
+            <Upload className="h-4 w-4" />
+            Upload profile photo
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) onProfileImage?.(file);
+              }}
+            />
+          </label>
+        )}
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
           <Label>First Name *</Label>

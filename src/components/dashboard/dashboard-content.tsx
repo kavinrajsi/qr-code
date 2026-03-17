@@ -8,9 +8,16 @@ import { StatsCards } from "@/components/dashboard/stats-cards";
 import { StatsView } from "@/components/dashboard/stats-view";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Plus, CheckCircle, Search } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+
+const SORT_OPTIONS = [
+  { value: "newest", label: "Last Created" },
+  { value: "oldest", label: "Oldest First" },
+  { value: "most-scans", label: "Most Scans" },
+  { value: "name", label: "Name A-Z" },
+];
 
 export function DashboardContent() {
   const { qrCodes, allQRCodes, loading, search, setSearch, deleteQRCode } = useQRCodes();
@@ -70,13 +77,12 @@ export function DashboardContent() {
         <div className="flex items-center gap-2">
           <Select value={sort} onValueChange={(v) => v && setSort(v)}>
             <SelectTrigger className="w-[160px]">
-              <SelectValue />
+              <span>{SORT_OPTIONS.find((o) => o.value === sort)?.label ?? sort}</span>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="newest">Last Created</SelectItem>
-              <SelectItem value="oldest">Oldest First</SelectItem>
-              <SelectItem value="most-scans">Most Scans</SelectItem>
-              <SelectItem value="name">Name A-Z</SelectItem>
+              {SORT_OPTIONS.map((o) => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
 

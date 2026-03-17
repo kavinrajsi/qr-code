@@ -112,6 +112,7 @@ export function buildVCard(c: ContactContentData): string {
   if (c.email) lines.push(`EMAIL:${c.email}`);
   if (c.address) lines.push(`ADR:;;${c.address};;;;`);
   if (c.website) lines.push(`URL:${c.website}`);
+  if (c.profile_image) lines.push(`PHOTO;VALUE=uri:${c.profile_image}`);
   lines.push("END:VCARD");
   return lines.join("\n");
 }

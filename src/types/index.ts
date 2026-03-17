@@ -83,6 +83,7 @@ export interface ContactContentData {
   job_title?: string;
   address?: string;
   website?: string;
+  profile_image?: string;
 }
 
 export interface TextContentData {
