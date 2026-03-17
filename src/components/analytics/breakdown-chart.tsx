@@ -46,7 +46,7 @@ export function BreakdownChart({ title, data }: BreakdownChartProps) {
       </div>
       <div className="p-5">
         <div className="h-[250px]">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={0}>
             <PieChart>
               <Pie
                 data={data}
