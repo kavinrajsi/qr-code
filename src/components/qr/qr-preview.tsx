@@ -2,7 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import QRCodeStyling from "qr-code-styling";
-import { createQRCode, type QRGenerateOptions } from "@/lib/qr";
+import { createQRCode, QR_DEFAULTS, type QRGenerateOptions } from "@/lib/qr";
+import { QRFrame } from "./qr-frame";
 
 interface QRPreviewProps {
   options: QRGenerateOptions;
@@ -51,5 +52,17 @@ export function QRPreview({ options, className }: QRPreviewProps) {
     );
   }
 
-  return <div ref={containerRef} className={className} />;
+  const frame = options.outerFrame || QR_DEFAULTS.outer_frame;
+
+  return (
+    <QRFrame
+      frame={frame}
+      label={options.frameLabel || QR_DEFAULTS.frame_label}
+      font={options.labelFont || QR_DEFAULTS.label_font}
+      color={options.frameColor || QR_DEFAULTS.frame_color}
+      className={className}
+    >
+      <div ref={containerRef} />
+    </QRFrame>
+  );
 }

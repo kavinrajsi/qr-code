@@ -56,6 +56,10 @@ export async function POST(request: NextRequest) {
         logo_size: item.logo_size || QR_DEFAULTS.logo_size,
         is_dynamic: FORCE_DYNAMIC_TYPES.includes(qrType) ? true : (item.is_dynamic ?? QR_DEFAULTS.is_dynamic),
         folder: item.folder || null,
+        outer_frame: item.outer_frame || QR_DEFAULTS.outer_frame,
+        frame_label: item.frame_label || QR_DEFAULTS.frame_label,
+        label_font: item.label_font || QR_DEFAULTS.label_font,
+        frame_color: item.frame_color || QR_DEFAULTS.frame_color,
       });
     }
 

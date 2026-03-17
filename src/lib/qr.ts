@@ -2,7 +2,7 @@ import QRCodeStyling, {
   type DotType,
   type CornerSquareType,
 } from "qr-code-styling";
-import type { DotStyle, CornerStyle, QRCode } from "@/types";
+import type { DotStyle, CornerStyle, FrameStyle, FrameFont, QRCode } from "@/types";
 
 export const QR_DEFAULTS = {
   qr_color: "#000000",
@@ -11,6 +11,10 @@ export const QR_DEFAULTS = {
   corner_style: "square" as CornerStyle,
   logo_size: 0.3,
   is_dynamic: true,
+  outer_frame: "none" as FrameStyle,
+  frame_label: "SCAN ME",
+  label_font: "Arial, Helvetica, sans-serif" as FrameFont,
+  frame_color: "#000000",
 } as const;
 
 const DOT_STYLE_MAP: Record<DotStyle, DotType> = {
@@ -38,6 +42,10 @@ export interface QRGenerateOptions {
   cornerStyle?: CornerStyle;
   logoUrl?: string;
   logoSize?: number;
+  outerFrame?: FrameStyle;
+  frameLabel?: string;
+  labelFont?: FrameFont;
+  frameColor?: string;
 }
 
 export function createQRCode(options: QRGenerateOptions): QRCodeStyling {
@@ -84,7 +92,7 @@ export function createQRCode(options: QRGenerateOptions): QRCodeStyling {
 }
 
 export function buildQROptionsFromRecord(
-  qrCode: Pick<QRCode, "slug" | "qr_color" | "bg_color" | "dot_style" | "corner_style" | "logo_url" | "logo_size">,
+  qrCode: Pick<QRCode, "slug" | "qr_color" | "bg_color" | "dot_style" | "corner_style" | "logo_url" | "logo_size" | "outer_frame" | "frame_label" | "label_font" | "frame_color">,
   baseUrl: string
 ): QRGenerateOptions {
   return {
@@ -97,5 +105,9 @@ export function buildQROptionsFromRecord(
     cornerStyle: qrCode.corner_style,
     logoUrl: qrCode.logo_url || undefined,
     logoSize: qrCode.logo_size,
+    outerFrame: qrCode.outer_frame,
+    frameLabel: qrCode.frame_label,
+    labelFont: qrCode.label_font,
+    frameColor: qrCode.frame_color,
   };
 }

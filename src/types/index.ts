@@ -20,6 +20,10 @@ export interface QRCode {
   password: string | null;
   expires_at: string | null;
   folder: string | null;
+  outer_frame: FrameStyle;
+  frame_label: string;
+  label_font: FrameFont;
+  frame_color: string;
   created_at: string;
   updated_at: string;
 }
@@ -40,6 +44,22 @@ export interface QRScan {
 
 export type DotStyle = "square" | "dots" | "rounded" | "extra-rounded" | "classy" | "classy-rounded";
 export type CornerStyle = "square" | "dot" | "extra-rounded";
+
+export type FrameStyle =
+  | "none"
+  | "bottom"
+  | "top"
+  | "balloon-bottom"
+  | "balloon-top"
+  | "ribbon-bottom"
+  | "ribbon-top"
+  | "phone"
+  | "cine";
+
+export type FrameFont =
+  | "Arial, Helvetica, sans-serif"
+  | "'Times New Roman', Times, serif"
+  | "'Courier New', Courier, monospace";
 
 // Content data shapes per QR type
 export interface URLContentData {
@@ -118,6 +138,10 @@ export interface QRCodeFormData {
   password: string;
   expires_at: string;
   folder: string;
+  outer_frame: FrameStyle;
+  frame_label: string;
+  label_font: FrameFont;
+  frame_color: string;
 }
 
 export interface QRAnalytics {

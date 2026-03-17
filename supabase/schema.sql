@@ -28,6 +28,10 @@ create table public.qr_codes (
   password text,
   expires_at timestamptz,
   folder text,
+  outer_frame text default 'none' not null,
+  frame_label text default 'SCAN ME' not null,
+  label_font text default 'Arial, Helvetica, sans-serif' not null,
+  frame_color text default '#000000' not null,
   created_at timestamptz default now() not null,
   updated_at timestamptz default now() not null
 );
