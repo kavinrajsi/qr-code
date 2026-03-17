@@ -15,7 +15,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { QRPreview } from "./qr-preview";
 import { DownloadPanel } from "./download-panel";
@@ -35,22 +34,25 @@ import {
   MessageSquare,
   Mail,
   Phone,
+  ArrowLeft,
+  ArrowRight,
+  Check,
 } from "lucide-react";
 
 interface QRFormProps {
   existingQR?: QRCode;
 }
 
-const QR_TYPES: { value: QRType; label: string; icon: React.ReactNode }[] = [
-  { value: "url", label: "URL", icon: <Link className="h-4 w-4" /> },
-  { value: "pdf", label: "PDF", icon: <FileText className="h-4 w-4" /> },
-  { value: "multi_url", label: "Multi-URL", icon: <ListOrdered className="h-4 w-4" /> },
-  { value: "contact", label: "Contact", icon: <Contact className="h-4 w-4" /> },
-  { value: "text", label: "Plain Text", icon: <Type className="h-4 w-4" /> },
-  { value: "app", label: "App", icon: <Smartphone className="h-4 w-4" /> },
-  { value: "sms", label: "SMS", icon: <MessageSquare className="h-4 w-4" /> },
-  { value: "email", label: "Email", icon: <Mail className="h-4 w-4" /> },
-  { value: "phone", label: "Phone", icon: <Phone className="h-4 w-4" /> },
+const QR_TYPES: { value: QRType; label: string; description: string; icon: React.ReactNode }[] = [
+  { value: "url", label: "Website URL", description: "Link to any website URL", icon: <Link className="h-5 w-5" /> },
+  { value: "pdf", label: "PDF", description: "Share PDF document", icon: <FileText className="h-5 w-5" /> },
+  { value: "multi_url", label: "Multiple Links", description: "Share multiple links", icon: <ListOrdered className="h-5 w-5" /> },
+  { value: "contact", label: "Profile Card", description: "Personal custom page", icon: <Contact className="h-5 w-5" /> },
+  { value: "text", label: "Plain Text", description: "Share text content", icon: <Type className="h-5 w-5" /> },
+  { value: "app", label: "App", description: "Download apps Android & iOS", icon: <Smartphone className="h-5 w-5" /> },
+  { value: "sms", label: "SMS", description: "Send a text message", icon: <MessageSquare className="h-5 w-5" /> },
+  { value: "email", label: "Email", description: "Send an email", icon: <Mail className="h-5 w-5" /> },
+  { value: "phone", label: "Phone", description: "Make a phone call", icon: <Phone className="h-5 w-5" /> },
 ];
 
 const DOT_STYLES: { value: DotStyle; label: string }[] = [
@@ -66,6 +68,12 @@ const CORNER_STYLES: { value: CornerStyle; label: string }[] = [
   { value: "square", label: "Square" },
   { value: "dot", label: "Dot" },
   { value: "extra-rounded", label: "Rounded" },
+];
+
+const STEPS = [
+  { number: 1, label: "Choose Type" },
+  { number: 2, label: "Additional Information" },
+  { number: 3, label: "QR Design" },
 ];
 
 function getDefaultContentData(type: QRType): QRContentData {
@@ -84,7 +92,6 @@ function getDefaultContentData(type: QRType): QRContentData {
 
 function getInitialContentData(qr: QRCode): QRContentData {
   if (qr.content_data) return qr.content_data;
-  // Backward compatibility: existing URL-type QR codes
   return { url: qr.destination_url };
 }
 
@@ -92,6 +99,7 @@ export function QRForm({ existingQR }: QRFormProps) {
   const router = useRouter();
   const supabase = createClient();
   const [saving, setSaving] = useState(false);
+  const [step, setStep] = useState(existingQR ? 2 : 1);
 
   const [form, setForm] = useState<QRCodeFormData>({
     name: existingQR?.name || "",
@@ -128,7 +136,6 @@ export function QRForm({ existingQR }: QRFormProps) {
       ...prev,
       qr_type: newType,
       content_data: getDefaultContentData(newType),
-      // Force dynamic for types that need landing pages
       is_dynamic: FORCE_DYNAMIC_TYPES.includes(newType) ? true : prev.is_dynamic,
     }));
     setPdfFileName(null);
@@ -193,7 +200,7 @@ export function QRForm({ existingQR }: QRFormProps) {
     setPdfFileName(file?.name || null);
   };
 
-  const validateForm = (): string | null => {
+  const validateStep2 = (): string | null => {
     if (!form.name.trim()) return "Please enter a QR code name";
 
     switch (form.qr_type) {
@@ -232,13 +239,18 @@ export function QRForm({ existingQR }: QRFormProps) {
     return null;
   };
 
-  const handleSave = async () => {
-    const error = validateForm();
-    if (error) {
-      toast.error(error);
-      return;
+  const handleContinue = () => {
+    if (step === 2) {
+      const error = validateStep2();
+      if (error) {
+        toast.error(error);
+        return;
+      }
     }
+    setStep((s) => Math.min(s + 1, 3));
+  };
 
+  const handleSave = async () => {
     setSaving(true);
 
     try {
@@ -248,7 +260,6 @@ export function QRForm({ existingQR }: QRFormProps) {
       let logoUrl = existingQR?.logo_url || null;
       let contentData = form.content_data;
 
-      // Upload logo if new file
       if (form.logo_file) {
         const ext = form.logo_file.name.split(".").pop();
         const path = `${user.id}/${Date.now()}.${ext}`;
@@ -266,7 +277,6 @@ export function QRForm({ existingQR }: QRFormProps) {
         logoUrl = null;
       }
 
-      // Upload PDF if applicable
       if (form.qr_type === "pdf" && form.pdf_file) {
         const path = `${user.id}/${Date.now()}.pdf`;
         const { error: uploadError } = await supabase.storage
@@ -333,262 +343,332 @@ export function QRForm({ existingQR }: QRFormProps) {
   const isDynamicForced = FORCE_DYNAMIC_TYPES.includes(form.qr_type);
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
-      {/* Left: Settings */}
-      <div className="space-y-6">
-        {/* Type Selector */}
-        <Card className="border-border/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">QR Code Type</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-3 xl:grid-cols-5">
-              {QR_TYPES.map((t) => (
-                <button
-                  key={t.value}
-                  type="button"
-                  onClick={() => handleTypeChange(t.value)}
-                  className={`flex flex-col items-center gap-1.5 rounded-lg border px-3 py-2.5 transition-all duration-200 ${
-                    form.qr_type === t.value
-                      ? "border-foreground/20 bg-foreground/5 text-foreground"
-                      : "border-border/50 text-muted-foreground hover:border-border hover:text-foreground"
-                  }`}
-                >
-                  {t.icon}
-                  <span className="text-[11px] font-medium">{t.label}</span>
-                </button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+    <div className="space-y-6">
+      {/* Stepper Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-6">
+          {STEPS.map((s) => (
+            <button
+              key={s.number}
+              type="button"
+              onClick={() => {
+                if (s.number < step) setStep(s.number);
+                if (s.number === step + 1 && step === 1) setStep(s.number);
+              }}
+              className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+                s.number === step
+                  ? "text-brand"
+                  : s.number < step
+                  ? "text-foreground"
+                  : "text-muted-foreground"
+              }`}
+            >
+              <span
+                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
+                  s.number === step
+                    ? "bg-brand text-white"
+                    : s.number < step
+                    ? "bg-brand/20 text-brand"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {s.number < step ? <Check className="h-3.5 w-3.5" /> : s.number}
+              </span>
+              <span className="hidden sm:inline">{s.label}</span>
+            </button>
+          ))}
+        </div>
 
-        {/* Content Fields */}
-        <Card className="border-border/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Content</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">QR Code Name *</Label>
-              <Input
-                id="name"
-                placeholder="My QR Code"
-                value={form.name}
-                onChange={(e) => update("name", e.target.value)}
-              />
-            </div>
-
-            <TypeFields
-              type={form.qr_type}
-              data={form.content_data}
-              onChange={(d) => update("content_data", d)}
-              onPdfFile={handlePdfFile}
-              pdfFileName={pdfFileName || undefined}
-            />
-
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                placeholder="Optional description..."
-                value={form.description}
-                onChange={(e) => update("description", e.target.value)}
-                rows={2}
-              />
-            </div>
-
-            <div className="flex items-center gap-3">
-              <Switch
-                id="dynamic"
-                checked={form.is_dynamic}
-                onCheckedChange={(v) => update("is_dynamic", v)}
-                disabled={isDynamicForced}
-              />
-              <Label htmlFor="dynamic" className={isDynamicForced ? "text-muted-foreground" : ""}>
-                Dynamic QR Code (editable destination)
-                {isDynamicForced && <span className="ml-1 text-xs">(required for this type)</span>}
-              </Label>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Customization</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <ColorPicker
-                label="QR Color"
-                value={form.qr_color}
-                onChange={(v) => update("qr_color", v)}
-              />
-              <ColorPicker
-                label="Background"
-                value={form.bg_color}
-                onChange={(v) => update("bg_color", v)}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Dot Style</Label>
-                <Select
-                  value={form.dot_style}
-                  onValueChange={(v) => update("dot_style", v)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DOT_STYLES.map((s) => (
-                      <SelectItem key={s.value} value={s.value}>
-                        {s.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Corner Style</Label>
-                <Select
-                  value={form.corner_style}
-                  onValueChange={(v) => update("corner_style", v)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CORNER_STYLES.map((s) => (
-                      <SelectItem key={s.value} value={s.value}>
-                        {s.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-2">
-              <Label>Logo</Label>
-              {logoPreview ? (
-                <div className="flex items-center gap-3">
-                  <img
-                    src={logoPreview}
-                    alt="Logo"
-                    className="h-12 w-12 rounded border object-contain"
-                  />
-                  <Button variant="ghost" size="sm" onClick={removeLogo}>
-                    <X className="mr-1 h-4 w-4" />
-                    Remove
-                  </Button>
-                </div>
-              ) : (
-                <div>
-                  <label className="flex cursor-pointer items-center gap-2 rounded-md border border-dashed px-4 py-3 text-sm text-muted-foreground hover:bg-muted/50">
-                    <Upload className="h-4 w-4" />
-                    Upload logo image
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleLogoUpload}
-                    />
-                  </label>
-                </div>
-              )}
-            </div>
-
-            {logoPreview && (
-              <div className="space-y-2">
-                <Label>
-                  Logo Size: {Math.round(form.logo_size * 100)}%
-                </Label>
-                <Slider
-                  value={form.logo_size}
-                  onValueChange={(v) => update("logo_size", Array.isArray(v) ? v[0] : v)}
-                  min={0.1}
-                  max={0.5}
-                  step={0.05}
-                />
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Advanced</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="password">Password Protection (optional)</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Leave empty for no password"
-                value={form.password}
-                onChange={(e) => update("password", e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="expires">Expiration Date (optional)</Label>
-              <Input
-                id="expires"
-                type="datetime-local"
-                value={form.expires_at}
-                onChange={(e) => update("expires_at", e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="folder">Folder (optional)</Label>
-              <Input
-                id="folder"
-                placeholder="e.g. Marketing"
-                value={form.folder}
-                onChange={(e) => update("folder", e.target.value)}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Right: Preview & Download */}
-      <div className="space-y-6">
-        <Card className="sticky top-20 border-border/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Preview</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-center">
-              <QRPreview options={qrOptions} />
-            </div>
-
-            {form.name && (
-              <p className="text-center font-medium">{form.name}</p>
-            )}
-            {previewContent && (
-              <p className="text-center text-sm text-muted-foreground truncate">
-                {previewContent.length > 60
-                  ? previewContent.slice(0, 60) + "..."
-                  : previewContent}
-              </p>
-            )}
-
-            <Separator />
-
-            <DownloadPanel options={qrOptions} name={form.name} />
-
-            <Separator />
-
-            <Button onClick={handleSave} className="w-full" disabled={saving}>
+        <div className="flex items-center gap-2">
+          {step > 1 && (
+            <Button variant="outline" onClick={() => setStep((s) => s - 1)}>
+              <ArrowLeft className="mr-1.5 h-4 w-4" />
+              Back
+            </Button>
+          )}
+          {step < 3 ? (
+            <Button
+              className="bg-brand hover:bg-brand/90 text-brand-foreground"
+              onClick={handleContinue}
+            >
+              Continue
+              <ArrowRight className="ml-1.5 h-4 w-4" />
+            </Button>
+          ) : (
+            <Button
+              className="bg-brand hover:bg-brand/90 text-brand-foreground"
+              onClick={handleSave}
+              disabled={saving}
+            >
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {existingQR ? "Update QR Code" : "Save QR Code"}
             </Button>
-          </CardContent>
-        </Card>
+          )}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
+        {/* Left: Step Content */}
+        <div>
+          {/* Step 1: Choose Type */}
+          {step === 1 && (
+            <div className="rounded-xl border border-border/50 bg-card p-6 lg:p-8">
+              <h2 className="mb-6 text-xl font-semibold">Choose your QR Code type</h2>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {QR_TYPES.map((t) => (
+                  <button
+                    key={t.value}
+                    type="button"
+                    onClick={() => {
+                      handleTypeChange(t.value);
+                      setStep(2);
+                    }}
+                    className={`flex items-start gap-3 rounded-lg border p-4 text-left transition-all duration-200 ${
+                      form.qr_type === t.value
+                        ? "border-brand bg-brand/5 text-brand"
+                        : "border-border/50 hover:border-border hover:bg-muted/30"
+                    }`}
+                  >
+                    <span className={`mt-0.5 ${form.qr_type === t.value ? "text-brand" : "text-muted-foreground"}`}>
+                      {t.icon}
+                    </span>
+                    <div>
+                      <p className={`text-sm font-semibold ${form.qr_type === t.value ? "text-brand" : "text-foreground"}`}>
+                        {t.label}
+                      </p>
+                      <p className={`text-xs mt-0.5 ${form.qr_type === t.value ? "text-brand/70" : "text-muted-foreground"}`}>
+                        {t.description}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Step 2: Additional Information */}
+          {step === 2 && (
+            <div className="space-y-6">
+              <div className="rounded-xl border border-border/50 bg-card p-6 lg:p-8">
+                <h2 className="mb-6 text-xl font-semibold">Additional Information</h2>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">QR Code Name *</Label>
+                    <Input
+                      id="name"
+                      placeholder="My QR Code"
+                      value={form.name}
+                      onChange={(e) => update("name", e.target.value)}
+                    />
+                  </div>
+
+                  <TypeFields
+                    type={form.qr_type}
+                    data={form.content_data}
+                    onChange={(d) => update("content_data", d)}
+                    onPdfFile={handlePdfFile}
+                    pdfFileName={pdfFileName || undefined}
+                  />
+
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      placeholder="Optional description..."
+                      value={form.description}
+                      onChange={(e) => update("description", e.target.value)}
+                      rows={2}
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <Switch
+                      id="dynamic"
+                      checked={form.is_dynamic}
+                      onCheckedChange={(v) => update("is_dynamic", v)}
+                      disabled={isDynamicForced}
+                    />
+                    <Label htmlFor="dynamic" className={isDynamicForced ? "text-muted-foreground" : ""}>
+                      Dynamic QR Code (editable destination)
+                      {isDynamicForced && <span className="ml-1 text-xs">(required for this type)</span>}
+                    </Label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-border/50 bg-card p-6 lg:p-8">
+                <h2 className="mb-6 text-lg font-semibold">Advanced Settings</h2>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password Protection (optional)</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Leave empty for no password"
+                      value={form.password}
+                      onChange={(e) => update("password", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="expires">Expiration Date (optional)</Label>
+                    <Input
+                      id="expires"
+                      type="datetime-local"
+                      value={form.expires_at}
+                      onChange={(e) => update("expires_at", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="folder">Folder (optional)</Label>
+                    <Input
+                      id="folder"
+                      placeholder="e.g. Marketing"
+                      value={form.folder}
+                      onChange={(e) => update("folder", e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: QR Design */}
+          {step === 3 && (
+            <div className="rounded-xl border border-border/50 bg-card p-6 lg:p-8">
+              <h2 className="mb-6 text-xl font-semibold">Customize QR Design</h2>
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <ColorPicker
+                    label="QR Color"
+                    value={form.qr_color}
+                    onChange={(v) => update("qr_color", v)}
+                  />
+                  <ColorPicker
+                    label="Background"
+                    value={form.bg_color}
+                    onChange={(v) => update("bg_color", v)}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Dot Style</Label>
+                    <Select
+                      value={form.dot_style}
+                      onValueChange={(v) => update("dot_style", v)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {DOT_STYLES.map((s) => (
+                          <SelectItem key={s.value} value={s.value}>
+                            {s.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Corner Style</Label>
+                    <Select
+                      value={form.corner_style}
+                      onValueChange={(v) => update("corner_style", v)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CORNER_STYLES.map((s) => (
+                          <SelectItem key={s.value} value={s.value}>
+                            {s.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <Label>Logo</Label>
+                  {logoPreview ? (
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={logoPreview}
+                        alt="Logo"
+                        className="h-12 w-12 rounded border object-contain"
+                      />
+                      <Button variant="ghost" size="sm" onClick={removeLogo}>
+                        <X className="mr-1 h-4 w-4" />
+                        Remove
+                      </Button>
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed px-4 py-3 text-sm text-muted-foreground hover:bg-muted/50 transition-colors">
+                        <Upload className="h-4 w-4" />
+                        Upload logo image
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleLogoUpload}
+                        />
+                      </label>
+                    </div>
+                  )}
+                </div>
+
+                {logoPreview && (
+                  <div className="space-y-2">
+                    <Label>
+                      Logo Size: {Math.round(form.logo_size * 100)}%
+                    </Label>
+                    <Slider
+                      value={form.logo_size}
+                      onValueChange={(v) => update("logo_size", Array.isArray(v) ? v[0] : v)}
+                      min={0.1}
+                      max={0.5}
+                      step={0.05}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Right: Preview */}
+        <div>
+          <div className="sticky top-20 rounded-xl border border-border/50 bg-card overflow-hidden">
+            <div className="bg-brand px-5 py-3 text-center">
+              <p className="text-sm font-medium text-brand-foreground">Preview Page</p>
+            </div>
+            <div className="p-5 space-y-4">
+              <div className="flex justify-center">
+                <QRPreview options={qrOptions} />
+              </div>
+
+              {form.name && (
+                <p className="text-center font-medium text-sm">{form.name}</p>
+              )}
+              {previewContent && (
+                <p className="text-center text-xs text-muted-foreground truncate">
+                  {previewContent.length > 50
+                    ? previewContent.slice(0, 50) + "..."
+                    : previewContent}
+                </p>
+              )}
+
+              <Separator />
+
+              <DownloadPanel options={qrOptions} name={form.name} />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
