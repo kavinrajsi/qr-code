@@ -76,16 +76,6 @@ export function QRTable({
 
   return (
     <div className="space-y-4">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/60" />
-        <Input
-          placeholder="Search QR codes..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9 h-9 text-sm"
-        />
-      </div>
-
       <div className="rounded-xl border border-border/50 overflow-hidden">
         <Table>
           <TableHeader>
