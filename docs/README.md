@@ -17,6 +17,7 @@ A complete walkthrough for building and deploying this QR code generator applica
 | [09](./09-bulk-and-api.md) | **Bulk Generation & API** | Add CSV upload for bulk creation and a REST API for programmatic QR code generation |
 | [10](./10-ui-polish.md) | **UI Polish & Dark Mode** | Add dark mode, toasts, loading skeletons, responsive design, and layout wrappers |
 | [11](./11-deployment.md) | **Deployment** | Deploy to Vercel (or other platforms), configure production URLs, and verify everything |
+| [Hosting](./HOSTING.md) | **Hosting Requirements** | Server, database, storage, auth, and cost breakdown for running the app |
 
 ## Quick start
 

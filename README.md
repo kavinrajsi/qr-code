@@ -56,7 +56,7 @@ src/
 │   │   ├── verify/           # Password verification
 │   │   └── generate/         # QR creation API
 │   ├── qr/[slug]/            # Dynamic redirect (scan → log → redirect/vCard)
-│   ├── p/[slug]/             # Landing pages (multi-URL, text, app)
+│   ├── view/[slug]/           # Landing pages (multi-URL, text, app)
 │   ├── share/[slug]/         # Public share page
 │   └── embed/qr/[slug]/      # Embeddable iframe
 ├── components/

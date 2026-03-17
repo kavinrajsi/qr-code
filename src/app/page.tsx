@@ -59,7 +59,7 @@ export default function LandingPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <header className="border-b border-border/50">
-        <div className="container flex h-16 items-center justify-between">
+        <div className="container mx-auto flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 font-semibold tracking-tight">
             <QrCode className="h-5 w-5" />
             QR Generator
@@ -102,7 +102,7 @@ export default function LandingPage() {
       </section>
 
       <section className="border-t border-border/50 px-4 py-24">
-        <div className="container">
+        <div className="container mx-auto">
           <p className="mb-16 text-center text-sm font-medium uppercase tracking-widest text-muted-foreground">
             Features
           </p>
@@ -121,7 +121,7 @@ export default function LandingPage() {
       </section>
 
       <footer className="border-t border-border/50 py-8">
-        <div className="container text-center text-xs text-muted-foreground">
+        <div className="container mx-auto text-center text-xs text-muted-foreground">
           Built with Next.js, Supabase & shadcn/ui
         </div>
       </footer>

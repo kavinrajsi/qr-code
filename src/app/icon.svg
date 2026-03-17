@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
   <style>
-    rect, path { fill: #111 }
+    rect, path { fill: #EF4130 }
     @media (prefers-color-scheme: dark) {
-      rect, path { fill: #fff }
+      rect, path { fill: #EF4130 }
     }
   </style>
   <!-- Top-left finder pattern -->

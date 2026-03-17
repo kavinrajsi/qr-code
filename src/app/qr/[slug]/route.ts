@@ -41,7 +41,7 @@ export async function GET(
 
   // Types that need a landing page
   if (LANDING_PAGE_TYPES.includes(qrType)) {
-    return NextResponse.redirect(new URL(`/p/${slug}`, request.url));
+    return NextResponse.redirect(new URL(`/view/${slug}`, request.url));
   }
 
   // Contact type: serve vCard file directly so phones auto-prompt "Add Contact"
