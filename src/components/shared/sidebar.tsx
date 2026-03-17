@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Plus,
@@ -28,6 +28,7 @@ const bottomItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { theme, setTheme } = useTheme();
   const { folders } = useFolders();
 
@@ -54,8 +55,13 @@ export function Sidebar() {
             </div>
             <div className="mt-2 space-y-0.5">
               {qrItems.map((item) => {
-                const isActive =
-                  pathname === item.href && !item.href.includes("?");
+                const [itemPath, itemQuery] = item.href.split("?");
+                const itemParams = new URLSearchParams(itemQuery || "");
+                const isActive = pathname === itemPath && (
+                  !itemQuery
+                    ? !searchParams.get("view")
+                    : Array.from(itemParams.entries()).every(([k, v]) => searchParams.get(k) === v)
+                );
                 return (
                   <Link
                     key={item.label}
