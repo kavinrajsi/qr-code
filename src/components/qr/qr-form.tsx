@@ -345,13 +345,13 @@ export function QRForm({ existingQR }: QRFormProps) {
         const ext = profileImageFile.name.split(".").pop();
         const path = `${user.id}/${Date.now()}-profile.${ext}`;
         const { error: uploadError } = await supabase.storage
-          .from("qr-logos")
+          .from("profile-images")
           .upload(path, profileImageFile);
 
         if (uploadError) throw uploadError;
 
         const { data: urlData } = supabase.storage
-          .from("qr-logos")
+          .from("profile-images")
           .getPublicUrl(path);
         contentData = { ...contentData, profile_image: urlData.publicUrl };
       } else if (form.qr_type === "contact" && profileImagePreview) {
