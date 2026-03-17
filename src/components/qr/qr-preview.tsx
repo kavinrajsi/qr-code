@@ -39,6 +39,11 @@ export function QRPreview({ options, className }: QRPreviewProps) {
         ...(options.logoUrl ? { image: options.logoUrl } : {}),
       });
     }
+
+    return () => {
+      if (containerRef.current) containerRef.current.innerHTML = "";
+      qrRef.current = null;
+    };
   }, [options]);
 
   if (!options.data) {

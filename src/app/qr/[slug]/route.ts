@@ -48,7 +48,9 @@ export async function GET(
   if (qrType === "contact" && qrCode.content_data) {
     const vcf = buildVCard(qrCode.content_data as ContactContentData);
     const contact = qrCode.content_data as ContactContentData;
-    const filename = `${contact.first_name}_${contact.last_name}.vcf`.replace(/\s+/g, "_");
+    const filename = `${contact.first_name}_${contact.last_name}.vcf`
+      .replace(/\s+/g, "_")
+      .replace(/[^a-zA-Z0-9._-]/g, "");
 
     return new NextResponse(vcf, {
       headers: {
@@ -70,7 +72,7 @@ export async function GET(
       if (!ALLOWED_PROTOCOLS.includes(url.protocol)) {
         return new NextResponse("Invalid destination", { status: 400 });
       }
-    } else if (!ALLOWED_PROTOCOLS.some((p) => dest.startsWith(p.replace(":", "")))) {
+    } else if (!ALLOWED_PROTOCOLS.some((p) => dest.startsWith(p))) {
       return new NextResponse("Invalid destination", { status: 400 });
     }
   } catch {

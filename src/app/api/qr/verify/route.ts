@@ -1,5 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { timingSafeEqual } from "crypto";
+
+function safeCompare(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) {
+    // Compare against self to keep constant time, then return false
+    timingSafeEqual(bufA, bufA);
+    return false;
+  }
+  return timingSafeEqual(bufA, bufB);
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,12 +29,8 @@ export async function POST(request: NextRequest) {
       .eq("slug", slug)
       .single();
 
-    if (!qrCode) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
-    }
-
-    if (qrCode.password !== password) {
-      return NextResponse.json({ error: "Incorrect password" }, { status: 403 });
+    if (!qrCode || !qrCode.password || !safeCompare(qrCode.password, password)) {
+      return NextResponse.json({ error: "Invalid slug or password" }, { status: 403 });
     }
 
     return NextResponse.json({ ok: true });

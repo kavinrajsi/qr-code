@@ -36,7 +36,7 @@ export function BreakdownCard({ title, rows }: BreakdownCardProps) {
               <div className="bg-muted h-1 rounded-full">
                 <div
                   className="h-full rounded-full bg-blue-500/85"
-                  style={{ width: `${(row.value / maxRowValue) * 100}%` }}
+                  style={{ width: maxRowValue > 0 ? `${(row.value / maxRowValue) * 100}%` : "0%" }}
                 />
               </div>
             </div>

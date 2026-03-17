@@ -7,6 +7,7 @@ import type {
   TextContentData,
   AppContentData,
 } from "@/types";
+import { buildVCard } from "@/lib/qr-content";
 import { ExternalLink, Download, Phone, Mail, Building2, Globe, MapPin } from "lucide-react";
 
 export function LandingPageClient({ qrCode }: { qrCode: QRCode }) {
@@ -64,21 +65,8 @@ function ContactView({ data }: { data: ContactContentData }) {
   const fullName = `${data.first_name} ${data.last_name}`.trim();
 
   const downloadVCard = () => {
-    const lines = [
-      "BEGIN:VCARD",
-      "VERSION:3.0",
-      `N:${data.last_name};${data.first_name};;;`,
-      `FN:${fullName}`,
-    ];
-    if (data.company) lines.push(`ORG:${data.company}`);
-    if (data.job_title) lines.push(`TITLE:${data.job_title}`);
-    if (data.phone) lines.push(`TEL:${data.phone}`);
-    if (data.email) lines.push(`EMAIL:${data.email}`);
-    if (data.address) lines.push(`ADR:;;${data.address};;;;`);
-    if (data.website) lines.push(`URL:${data.website}`);
-    lines.push("END:VCARD");
-
-    const blob = new Blob([lines.join("\n")], { type: "text/vcard" });
+    const vcf = buildVCard(data);
+    const blob = new Blob([vcf], { type: "text/vcard" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;

@@ -18,6 +18,10 @@ export async function POST(request: NextRequest) {
     const isBulk = Array.isArray(body);
     const items = isBulk ? body : [body];
 
+    if (isBulk && items.length > 100) {
+      return NextResponse.json({ error: "Bulk limit is 100 items" }, { status: 400 });
+    }
+
     // Validate and prepare all rows up front
     const validRows = [];
     const errors = [];

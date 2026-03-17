@@ -99,20 +99,31 @@ export const LANDING_PAGE_TYPES: QRType[] = ["multi_url", "app", "text"];
 /** Types that must always be dynamic (need server-side routing) */
 export const FORCE_DYNAMIC_TYPES: QRType[] = ["multi_url", "app"];
 
+/** Escape special vCard characters per RFC 6350 */
+function escapeVCard(val: string): string {
+  return val
+    .replace(/\\/g, "\\\\")
+    .replace(/\n/g, "\\n")
+    .replace(/\r/g, "")
+    .replace(/,/g, "\\,")
+    .replace(/;/g, "\\;");
+}
+
 export function buildVCard(c: ContactContentData): string {
+  const fn = escapeVCard(`${c.first_name} ${c.last_name}`);
   const lines = [
     "BEGIN:VCARD",
     "VERSION:3.0",
-    `N:${c.last_name};${c.first_name};;;`,
-    `FN:${c.first_name} ${c.last_name}`,
+    `N:${escapeVCard(c.last_name)};${escapeVCard(c.first_name)};;;`,
+    `FN:${fn}`,
   ];
-  if (c.company) lines.push(`ORG:${c.company}`);
-  if (c.job_title) lines.push(`TITLE:${c.job_title}`);
-  if (c.phone) lines.push(`TEL:${c.phone}`);
-  if (c.email) lines.push(`EMAIL:${c.email}`);
-  if (c.address) lines.push(`ADR:;;${c.address};;;;`);
-  if (c.website) lines.push(`URL:${c.website}`);
-  if (c.profile_image) lines.push(`PHOTO;VALUE=uri:${c.profile_image}`);
+  if (c.company) lines.push(`ORG:${escapeVCard(c.company)}`);
+  if (c.job_title) lines.push(`TITLE:${escapeVCard(c.job_title)}`);
+  if (c.phone) lines.push(`TEL:${escapeVCard(c.phone)}`);
+  if (c.email) lines.push(`EMAIL:${escapeVCard(c.email)}`);
+  if (c.address) lines.push(`ADR:;;${escapeVCard(c.address)};;;;`);
+  if (c.website) lines.push(`URL:${escapeVCard(c.website)}`);
+  if (c.profile_image) lines.push(`PHOTO;VALUE=uri:${escapeVCard(c.profile_image)}`);
   lines.push("END:VCARD");
-  return lines.join("\n");
+  return lines.join("\r\n");
 }

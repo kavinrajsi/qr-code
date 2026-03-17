@@ -75,6 +75,8 @@ src/
 │   ├── scan-logger.ts        # Scan logging with geo/device detection
 │   └── slug.ts               # Slug generation (nanoid)
 └── types/                    # TypeScript interfaces (QR types, content data, frames)
+tests/
+└── perf/                     # Vitest performance benchmarks for API routes and lib functions
 ```
 
 ## Getting Started
@@ -177,6 +179,28 @@ curl -X POST /api/qr/generate \
 curl -X POST /api/qr/generate \
   -H "Content-Type: application/json" \
   -d '[{"name": "QR 1", "destination_url": "https://example.com"}, ...]'
+```
+
+## Testing
+
+### Performance Benchmarks
+
+Run Vitest benchmarks to measure API route handler throughput and pure function performance:
+
+```bash
+npm run test:bench
+```
+
+This runs benchmarks for:
+- **Pure functions** — `encodeQRContent`, `buildDestinationUrl`, `buildVCard`, `generateSlug`
+- **API route handlers** — `/api/qr/generate`, `/api/qr/scan`, `/api/qr/verify` (with mocked Supabase)
+- **QR redirect route** — `/qr/[slug]` across URL redirect, vCard generation, password gate, expiry, and landing page paths
+- **Timing safety** — Verifies that password comparison timing is consistent regardless of input
+
+### Unit Tests
+
+```bash
+npm test
 ```
 
 ## Deployment

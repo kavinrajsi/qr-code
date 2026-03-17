@@ -33,19 +33,22 @@ export function LoginForm() {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      toast.error(error.message);
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+
+      router.push(redirect);
+      router.refresh();
+    } finally {
       setLoading(false);
-      return;
     }
-
-    router.push(redirect);
-    router.refresh();
   };
 
   const handleGoogleLogin = async () => {
