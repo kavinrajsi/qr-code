@@ -16,5 +16,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/dashboard/:path*", "/stores/:path*", "/codes/:path*", "/admin/:path*"],
+  // "/" and the public pages are intentionally not listed, so visitors can read them without signing in.
+  matcher: ["/dashboard/:path*", "/stores/:path*", "/codes/:path*", "/admin/:path*"],
 };
