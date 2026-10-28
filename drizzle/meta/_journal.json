@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1793137965401,
+      "tag": "0000_optimal_shriek",
+      "breakpoints": true
+    }
+  ]
+}
